@@ -1,0 +1,24 @@
+{
+  "name": "quasar-backend",
+  "version": "0.1.0",
+  "description": "Quasar is an open-source live chat project",
+  "homepage": "https://github.com/ShiftyX1/Quasar#readme",
+  "bugs": {
+    "url": "https://github.com/ShiftyX1/Quasar/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShiftyX1/Quasar.git"
+  },
+  "license": "ISC",
+  "author": "ShiftyX1",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0"
+  }
+}
