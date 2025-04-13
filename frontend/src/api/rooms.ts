@@ -2,10 +2,13 @@ import api from './axios';
 
 export interface Room {
   id: string;
+  roomId?: string;
   name: string;
   accessCode: string;
-  ownerId: string;
-  createdAt: string;
+  ownerId?: string;
+  createdAt?: string;
+  joinedAt?: string;
+  userId?: string;
 }
 
 export interface CreateRoomParams {

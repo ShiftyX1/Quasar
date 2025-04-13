@@ -2,6 +2,7 @@ import { createContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import * as authApi from '@/api/auth';
 import { User, LoginParams, RegisterParams } from '@/api/auth';
+import { getJoinedRooms } from '@/api/rooms';
 
 interface AuthContextType {
   user: User | null;

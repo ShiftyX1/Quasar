@@ -99,7 +99,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomId }) => {
         <MessageList messages={messages} loading={isLoading} />
         <MessageInput 
           onSendMessage={handleSendMessage} 
-          disabled={!isConnected}
+          // disabled={!isConnected}
         />
       </Content>
     </Layout>

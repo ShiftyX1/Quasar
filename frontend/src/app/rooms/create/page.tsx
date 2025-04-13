@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { Input, Button, Form, Typography, Card, Alert, message } from 'antd';
 import { useRouter } from 'next/navigation';
 import { createRoom } from '@/api/rooms';
+import { useRooms } from '@/hooks/useRooms';
 
 const { Title } = Typography;
 
@@ -22,6 +23,7 @@ type CreateRoomFormValues = z.infer<typeof createRoomSchema>;
 
 export default function CreateRoomPage() {
   const router = useRouter();
+  const { refreshRooms } = useRooms();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,6 +44,7 @@ export default function CreateRoomPage() {
     
     try {
       const room = await createRoom(data);
+      await refreshRooms();
       message.success(`Комната "${room.name}" успешно создана`);
       router.push('/');
     } catch (err: any) {

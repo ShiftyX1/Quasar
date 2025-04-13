@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { Input, Button, Form, Typography, Card, Alert, message } from 'antd';
 import { useRouter } from 'next/navigation';
 import { joinRoom } from '@/api/rooms';
+import { useRooms } from '@/hooks/useRooms';
 
 const { Title } = Typography;
 
@@ -22,6 +23,7 @@ type JoinRoomFormValues = z.infer<typeof joinRoomSchema>;
 
 export default function JoinRoomPage() {
   const router = useRouter();
+  const { refreshRooms } = useRooms();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,6 +44,7 @@ export default function JoinRoomPage() {
     
     try {
       const result = await joinRoom(data);
+      await refreshRooms();
       message.success('Вы успешно присоединились к комнате');
       
       if (result.roomId) {

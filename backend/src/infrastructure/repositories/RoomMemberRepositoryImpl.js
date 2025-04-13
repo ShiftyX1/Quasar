@@ -1,6 +1,6 @@
 const RoomMemberRepository = require("../../domain/interfaces/RoomMemberRepository");
 const RoomMember = require("../../domain/entities/RoomMember");
-const { RoomMemberModel, UserModel } = require("../datasources/models");
+const { RoomMemberModel, UserModel, ChatRoomModel } = require("../datasources/models");
 
 class RoomMemberRepositoryImpl extends RoomMemberRepository {
   async create(roomMember) {
@@ -50,8 +50,30 @@ class RoomMemberRepositoryImpl extends RoomMemberRepository {
   }
 
   async findByUserId(userId) {
-    const roomMemberModels = await RoomMemberModel.findAll({ where: { userId } });
-    return roomMemberModels.map(model => this._mapToEntity(model));
+    const roomMemberModels = await RoomMemberModel.findAll({
+      where: { userId },
+      include: [
+        {
+          model: ChatRoomModel,
+          as: "room",
+          attributes: ["id", "name", "accessCode"]
+        }
+      ]
+    });
+    
+    return roomMemberModels.map(model => {
+      const roomMember = this._mapToEntity(model);
+      
+      if (model.room) {
+        return {
+          ...roomMember,
+          name: model.room.name,
+          accessCode: model.room.accessCode
+        };
+      }
+      
+      return roomMember;
+    });
   }
 
   async delete(id) {
