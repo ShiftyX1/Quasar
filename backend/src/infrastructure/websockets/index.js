@@ -58,6 +58,7 @@ const setupWebsockets = (io) => {
     socket.on("send-message", async (message) => {
       io.to(message.roomId).emit("new-message", {
         ...message,
+        createdAt: new Date().toISOString(),
         user: {
           id: socket.user.id,
           username: socket.user.username
