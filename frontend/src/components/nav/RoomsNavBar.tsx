@@ -2,6 +2,7 @@ import React from 'react';
 import { Layout, Menu, Spin, Empty, Typography } from 'antd';
 import { WechatOutlined, TeamOutlined } from '@ant-design/icons';
 import { useRooms } from '@/hooks/useRooms';
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -10,9 +11,10 @@ const { Title } = Typography;
 
 const RoomsNavBar = () => {
   const { userRooms, loading, error } = useRooms();
+  const { user } = useAuth();
   const router = useRouter();
 
-  if (!loading && userRooms.length === 0) {
+  if (!user || (!loading && userRooms.length === 0)) {
     return null;
   }
 

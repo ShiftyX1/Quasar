@@ -2,13 +2,19 @@ import React from 'react';
 import { Card, Typography, List, Avatar, Button } from 'antd';
 import { WechatOutlined, TeamOutlined, PlusOutlined, LoginOutlined } from '@ant-design/icons';
 import { useRooms } from '@/hooks/useRooms';
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 
 const { Title, Text } = Typography;
 
 const HomeNav = () => {
   const { userRooms, loading, error } = useRooms();
+  const { user } = useAuth();
   const router = useRouter();
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <Card className="w-full mb-6">

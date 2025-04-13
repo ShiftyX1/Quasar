@@ -1,11 +1,13 @@
 import { createContext, useState, useEffect, ReactNode } from 'react';
 import { getJoinedRooms, getRoomById, Room } from '@/api/rooms';
+import { useAuth } from '@/hooks/useAuth';
 
 interface RoomContextType {
   userRooms: Room[];
   loading: boolean;
   error: string | null;
   refreshRooms: () => Promise<void>;
+  clearRooms: () => void;
 }
 
 export const RoomContext = createContext<RoomContextType>({
@@ -13,6 +15,7 @@ export const RoomContext = createContext<RoomContextType>({
   loading: true,
   error: null,
   refreshRooms: async () => {},
+  clearRooms: () => {},
 });
 
 interface RoomProviderProps {
@@ -23,9 +26,15 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
   const [userRooms, setUserRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [roomsInfo, setRoomsInfo] = useState<Room[]>([]);
+  const { user } = useAuth();
 
   const fetchRooms = async () => {
+    if (!user) {
+      setUserRooms([]);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -41,10 +50,14 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
 
   useEffect(() => {
     fetchRooms();
-  }, []);
+  }, [user]);
 
   const refreshRooms = async () => {
     await fetchRooms();
+  };
+
+  const clearRooms = () => {
+    setUserRooms([]);
   };
 
   return (
@@ -54,6 +67,7 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
         loading,
         error,
         refreshRooms,
+        clearRooms,
       }}
     >
       {children}
