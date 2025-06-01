@@ -5,9 +5,11 @@ const authMiddleware = require("../middlewares/authMiddleware");
 const ChatRoomController = require("../../application/controllers/ChatRoomController");
 const CreateChatRoom = require("../../domain/usecases/chatroom/CreateChatRoom");
 const ChatRoomRepositoryImpl = require("../../infrastructure/repositories/ChatRoomRepositoryImpl");
+const RoomMemberRepositoryImpl = require("../../infrastructure/repositories/RoomMemberRepositoryImpl");
 
 const chatRoomRepository = new ChatRoomRepositoryImpl();
-const createChatRoomUseCase = new CreateChatRoom(chatRoomRepository);
+const roomMemberRepository = new RoomMemberRepositoryImpl();
+const createChatRoomUseCase = new CreateChatRoom(chatRoomRepository, roomMemberRepository);
 
 const chatRoomController = new ChatRoomController(createChatRoomUseCase, chatRoomRepository);
 

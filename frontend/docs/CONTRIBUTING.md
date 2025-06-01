@@ -20,7 +20,7 @@
    ```
 3. Настройте remote для синхронизации с оригинальным репозиторием:
    ```bash
-   git remote add upstream https://github.com/original-owner/quasar-chat.git
+   git remote add upstream https://github.com/ShiftyX1/quasar-chat.git
    ```
 4. Установите зависимости и запустите проект, следуя инструкциям в [GETTING_STARTED.md](./GETTING_STARTED.md)
 

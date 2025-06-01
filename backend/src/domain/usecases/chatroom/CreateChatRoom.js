@@ -1,9 +1,11 @@
 const ChatRoom = require("../../entities/ChatRoom");
+const RoomMember = require("../../entities/RoomMember");
 const { nanoid } = require("nanoid");
 
 class CreateChatRoom {
-  constructor(chatRoomRepository) {
+  constructor(chatRoomRepository, roomMemberRepository) {
     this.chatRoomRepository = chatRoomRepository;
+    this.roomMemberRepository = roomMemberRepository;
   }
 
   async execute(name, ownerId) {
@@ -19,7 +21,20 @@ class CreateChatRoom {
       now
     );
 
-    return this.chatRoomRepository.create(chatRoom);
+    const createdRoom = await this.chatRoomRepository.create(chatRoom);
+    console.log(createdRoom);
+
+    const roomMember = new RoomMember(
+      null,
+      ownerId,
+      createdRoom.id,
+      now
+    );
+    console.log(roomMember);
+
+    await this.roomMemberRepository.create(roomMember);
+
+    return createdRoom;
   }
 }
 

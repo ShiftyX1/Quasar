@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, message } from 'antd';
+import { message } from 'antd';
+import { motion } from 'framer-motion';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import RoomHeader from './RoomHeader';
 import { getRoomMessages, sendMessage, Message } from '@/api/messages';
 import { getRoomById, Room } from '@/api/rooms';
 import socketClient from '@/lib/socket';
-
-const { Content } = Layout;
 
 interface ChatRoomProps {
   roomId: string;
@@ -16,7 +15,7 @@ interface ChatRoomProps {
 const ChatRoom: React.FC<ChatRoomProps> = ({ roomId }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [room, setRoom] = useState<Room | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -84,25 +83,38 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomId }) => {
   };
 
   if (!room) {
-    return null;
+    return (
+      <div className="h-full flex items-center justify-center bg-gray-50">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Загрузка комнаты...</p>
+        </motion.div>
+      </div>
+    );
   }
 
   return (
-    <Layout className="h-full flex flex-col">
+    <div className="h-full flex flex-col bg-white" style={{ height: 'calc(100vh - 64px)' }}>
+      {/* Header комнаты - фиксированный */}
       <RoomHeader 
         room={room} 
         isConnected={isConnected} 
         showAccessCode={true}
       />
       
-      <Content className="flex-1 flex flex-col">
-        <MessageList messages={messages} loading={isLoading} />
-        <MessageInput 
-          onSendMessage={handleSendMessage} 
-          // disabled={!isConnected}
-        />
-      </Content>
-    </Layout>
+      {/* Список сообщений - скроллируемый */}
+      <MessageList messages={messages} loading={isLoading} />
+      
+      {/* Поле ввода сообщения - фиксированное */}
+      <MessageInput 
+        onSendMessage={handleSendMessage} 
+        disabled={!isConnected}
+      />
+    </div>
   );
 };
 

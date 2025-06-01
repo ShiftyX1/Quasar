@@ -1,19 +1,20 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { use, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import ChatRoom from '@/components/chat/ChatRoom';
 import { Spin } from 'antd';
+import { motion } from 'framer-motion';
 
 interface ChatRoomPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function ChatRoomPage({ params }: ChatRoomPageProps) {
-  const { id } = params;
+  const { id } = use(params);
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -25,8 +26,15 @@ export default function ChatRoomPage({ params }: ChatRoomPageProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Spin size="large" />
+      <div className="h-full flex items-center justify-center bg-gray-50">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <Spin size="large" />
+          <p className="mt-4 text-gray-600">Загрузка...</p>
+        </motion.div>
       </div>
     );
   }
@@ -36,7 +44,7 @@ export default function ChatRoomPage({ params }: ChatRoomPageProps) {
   }
 
   return (
-    <div className="h-[calc(100vh-64px)]">
+    <div className="h-full w-full overflow-hidden">
       <ChatRoom roomId={id} />
     </div>
   );

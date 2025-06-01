@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Input, Button, Form, Typography, Card, Alert, message } from 'antd';
+import { Input, Button, Form, Typography, Card, Alert, message, App } from 'antd';
 import { useRouter } from 'next/navigation';
 import { createRoom } from '@/api/rooms';
 import { useRooms } from '@/hooks/useRooms';
@@ -22,6 +22,7 @@ const createRoomSchema = z.object({
 type CreateRoomFormValues = z.infer<typeof createRoomSchema>;
 
 export default function CreateRoomPage() {
+  const { message } = App.useApp();
   const router = useRouter();
   const { refreshRooms } = useRooms();
   const [loading, setLoading] = useState(false);
