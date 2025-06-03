@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/ShiftyX1/Quasar.git"
   },
-  "license": "ISC",
+  "license": "MIT",
   "author": "ShiftyX1",
   "type": "commonjs",
   "main": "app.js",
