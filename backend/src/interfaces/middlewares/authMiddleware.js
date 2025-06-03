@@ -11,8 +11,16 @@ const authMiddleware = (req, res, next) => {
   const decoded = tokenGenerator.verify(token);
 
   if (!decoded) {
+    console.error('Invalid token provided');
     return res.status(401).json({ error: "Invalid token" });
   }
+
+  console.log('Auth middleware - decoded user:', {
+    id: decoded.id,
+    username: decoded.username,
+    email: decoded.email,
+    authProvider: decoded.authProvider
+  });
 
   req.user = decoded;
   next();

@@ -1,15 +1,27 @@
 const User = require("../../entities/User");
 
 class RegisterUser {
-  constructor(userRepository, passwordHasher) {
+  constructor(userRepository, passwordHasher, settings) {
     this.userRepository = userRepository;
     this.passwordHasher = passwordHasher;
+    this.settings = settings;
   }
 
   async execute(username, email, password) {
-    const existingUserByEmail = await this.userRepository.findByEmail(email);
+    if (!this.settings.isLocalRegistrationAllowed) {
+      throw new Error("Local registration is disabled in SSO-only mode");
+    }
+
+    const existingUserByEmail = await this.userRepository.findByEmailAndProvider(email, 'local');
     if (existingUserByEmail) {
       throw new Error("Email already in use");
+    }
+
+    if (this.settings.isKeycloakEnabled) {
+      const existingKeycloakUser = await this.userRepository.findByEmailAndProvider(email, 'keycloak');
+      if (existingKeycloakUser) {
+        throw new Error("Email already registered with SSO. Please use SSO login.");
+      }
     }
 
     const existingUserByUsername = await this.userRepository.findByUsername(username);
@@ -25,6 +37,9 @@ class RegisterUser {
       username,
       email,
       passwordHash,
+      'local', // authProvider
+      null, // externalId
+      null, // metadata
       now,
       now
     );

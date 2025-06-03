@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middlewares/authMiddleware");
+const settings = require("../../../config/settings");
 
 const UserController = require("../../application/controllers/UserController");
 const RegisterUser = require("../../domain/usecases/user/RegisterUser");
@@ -13,7 +14,7 @@ const userRepository = new UserRepositoryImpl();
 const passwordHasher = new BcryptPasswordHasher();
 const tokenGenerator = new JwtTokenGenerator();
 
-const registerUserUseCase = new RegisterUser(userRepository, passwordHasher);
+const registerUserUseCase = new RegisterUser(userRepository, passwordHasher, settings);
 const loginUserUseCase = new LoginUser(userRepository, passwordHasher, tokenGenerator);
 
 const userController = new UserController(registerUserUseCase, loginUserUseCase);

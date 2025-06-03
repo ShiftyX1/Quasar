@@ -50,6 +50,7 @@ class RoomMemberRepositoryImpl extends RoomMemberRepository {
   }
 
   async findByUserId(userId) {
+    console.log(`findByUserId: ${userId}\n\n\n\n\n`);
     const roomMemberModels = await RoomMemberModel.findAll({
       where: { userId },
       include: [

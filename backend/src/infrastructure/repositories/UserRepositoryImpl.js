@@ -7,7 +7,10 @@ class UserRepositoryImpl extends UserRepository {
     const userModel = await UserModel.create({
       username: user.username,
       email: user.email,
-      passwordHash: user.passwordHash
+      passwordHash: user.passwordHash,
+      authProvider: user.authProvider || 'local',
+      externalId: user.externalId,
+      metadata: user.metadata
     });
 
     return this._mapToEntity(userModel);
@@ -31,11 +34,43 @@ class UserRepositoryImpl extends UserRepository {
     return this._mapToEntity(userModel);
   }
 
-  async update(id, userData) {
-    const [updated] = await UserModel.update(userData, { where: { id } });
+  async findByExternalId(externalId) {
+    const userModel = await UserModel.findOne({ 
+      where: { 
+        externalId: externalId,
+        authProvider: 'keycloak'
+      } 
+    });
+    if (!userModel) return null;
+    return this._mapToEntity(userModel);
+  }
+
+  async findByEmailAndProvider(email, authProvider) {
+    const userModel = await UserModel.findOne({ 
+      where: { 
+        email: email,
+        authProvider: authProvider
+      } 
+    });
+    if (!userModel) return null;
+    return this._mapToEntity(userModel);
+  }
+
+  async update(user) {
+    const [updated] = await UserModel.update({
+      username: user.username,
+      email: user.email,
+      passwordHash: user.passwordHash,
+      authProvider: user.authProvider,
+      externalId: user.externalId,
+      metadata: user.metadata
+    }, { 
+      where: { id: user.id } 
+    });
+    
     if (!updated) return null;
 
-    const userModel = await UserModel.findByPk(id);
+    const userModel = await UserModel.findByPk(user.id);
     return this._mapToEntity(userModel);
   }
 
@@ -50,6 +85,9 @@ class UserRepositoryImpl extends UserRepository {
       userModel.username,
       userModel.email,
       userModel.passwordHash,
+      userModel.authProvider,
+      userModel.externalId,
+      userModel.metadata,
       userModel.createdAt,
       userModel.updatedAt
     );

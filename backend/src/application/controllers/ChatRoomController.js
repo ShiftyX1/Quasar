@@ -7,7 +7,6 @@ class ChatRoomController {
   async create(req, res, next) {
     try {
       const { name } = req.body;
-      const ownerId = req.user.id;
 
       if (!name) {
         return res.status(400).json({ error: "Room name is required" });
@@ -29,7 +28,6 @@ class ChatRoomController {
 
   async getOwnedRooms(req, res, next) {
     try {
-      const ownerId = req.user.id;
       const rooms = await this.chatRoomRepository.findByOwnerId(ownerId);
 
       res.status(200).json(rooms.map(room => ({

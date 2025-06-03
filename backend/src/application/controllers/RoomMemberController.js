@@ -7,7 +7,11 @@ class RoomMemberController {
   async join(req, res, next) {
     try {
       const { accessCode } = req.body;
-      const userId = req.user.id;
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return res.status(401).json({ error: "User not authenticated" });
+      }
 
       if (!accessCode) {
         return res.status(400).json({ error: "Access code is required" });
@@ -29,7 +33,11 @@ class RoomMemberController {
   async leave(req, res, next) {
     try {
       const { roomId } = req.params;
-      const userId = req.user.id;
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return res.status(401).json({ error: "User not authenticated" });
+      }
 
       const result = await this.roomMemberRepository.deleteByUserAndRoom(userId, roomId);
       
@@ -45,11 +53,20 @@ class RoomMemberController {
 
   async getJoinedRooms(req, res, next) {
     try {
-      const userId = req.user.id;
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        console.error('getJoinedRooms: User not authenticated or missing user data:', req.user);
+        return res.status(401).json({ error: "User not authenticated" });
+      }
+
+      console.log(`getJoinedRooms: User ${userId} (${req.user.username}) requesting joined rooms`);
+      
       const memberships = await this.roomMemberRepository.findByUserId(userId);
 
       res.status(200).json(memberships);
     } catch (error) {
+      console.error('getJoinedRooms error:', error);
       next(error);
     }
   }

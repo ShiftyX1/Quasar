@@ -7,7 +7,11 @@ class MessageController {
   async sendMessage(req, res, next) {
     try {
       const { content, roomId } = req.body;
-      const userId = req.user.id;
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return res.status(401).json({ error: "User not authenticated" });
+      }
 
       if (!content || !roomId) {
         return res.status(400).json({ error: "Content and roomId are required" });
@@ -30,8 +34,12 @@ class MessageController {
   async getRoomMessages(req, res, next) {
     try {
       const { roomId } = req.params;
-      const userId = req.user.id;
+      const userId = req.user?.id;
       const { limit, offset } = req.query;
+
+      if (!userId) {
+        return res.status(401).json({ error: "User not authenticated" });
+      }
 
       const messages = await this.getRoomMessagesUseCase.execute(
         roomId,

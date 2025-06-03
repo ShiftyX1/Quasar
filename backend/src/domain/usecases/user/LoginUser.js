@@ -6,20 +6,29 @@ class LoginUser {
   }
 
   async execute(email, password) {
-    const user = await this.userRepository.findByEmail(email);
+    const user = await this.userRepository.findByEmailAndProvider(email, 'local');
     if (!user) {
-      throw new Error("Invalid credentials");
+      const keycloakUser = await this.userRepository.findByEmailAndProvider(email, 'keycloak');
+      if (keycloakUser) {
+        throw new Error("This email is registered with SSO. Please use SSO login.");
+      }
+      throw new Error("Неправильное имя пользователя или пароль");
+    }
+
+    if (!user.canLoginLocally()) {
+      throw new Error("Local login not allowed for this user");
     }
 
     const isPasswordValid = await this.passwordHasher.compare(password, user.passwordHash);
     if (!isPasswordValid) {
-      throw new Error("Invalid credentials");
+      throw new Error("Неправильное имя пользователя или пароль");
     }
 
     const token = this.tokenGenerator.generate({
       id: user.id,
       username: user.username,
-      email: user.email
+      email: user.email,
+      authProvider: user.authProvider
     });
 
     return {
@@ -27,6 +36,7 @@ class LoginUser {
         id: user.id,
         username: user.username,
         email: user.email,
+        authProvider: user.authProvider,
         createdAt: user.createdAt
       },
       token
