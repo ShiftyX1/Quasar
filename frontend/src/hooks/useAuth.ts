@@ -66,8 +66,8 @@ export function useAuth() {
   const hasLoggedOut = useRef(false);
 
   const initialize = useCallback(async () => {
+    console.log(state.isAuthenticated)
     if (hasLoggedOut.current) {
-      hasLoggedOut.current = false;
       return;
     }
 
@@ -79,6 +79,7 @@ export function useAuth() {
 
       const authData = await authService.validateToken();
       if (authData) {
+        hasLoggedOut.current = false;
         dispatch({ 
           type: 'LOGIN_SUCCESS', 
           payload: { user: authData.user, token: authData.token } 
@@ -88,10 +89,12 @@ export function useAuth() {
           navigate('/profile-setup', { replace: true });
         }
       } else {
+        hasLoggedOut.current = false;
         dispatch({ type: 'SET_LOADING', payload: false });
       }
     } catch (error) {
       console.error('Auth initialization failed:', error);
+      hasLoggedOut.current = false;
       dispatch({ type: 'SET_LOADING', payload: false });
     }
   }, [navigate, location.pathname]);
@@ -104,6 +107,7 @@ export function useAuth() {
       const response = await authService.login(credentials);
       
       if (response.success && response.data) {
+        hasLoggedOut.current = false;
         dispatch({ 
           type: 'LOGIN_SUCCESS', 
           payload: { user: response.data.user, token: response.data.token } 
@@ -137,6 +141,7 @@ export function useAuth() {
       const response = await authService.register(credentials);
       
       if (response.success && response.data) {
+        hasLoggedOut.current = false;
         dispatch({ 
           type: 'LOGIN_SUCCESS', 
           payload: { user: response.data.user, token: response.data.token } 
@@ -184,6 +189,7 @@ export function useAuth() {
       const response = await authService.handleSSOCallback(code, state);
       
       if (response.success && response.data) {
+        hasLoggedOut.current = false;
         dispatch({ 
           type: 'LOGIN_SUCCESS', 
           payload: { user: response.data.user, token: response.data.token } 
@@ -232,6 +238,26 @@ export function useAuth() {
     dispatch({ type: 'CLEAR_ERROR' });
   }, []);
 
+  const refreshUserData = useCallback(async () => {
+    try {
+      const authData = await authService.refreshUserData();
+      
+      if (authData) {
+        dispatch({ 
+          type: 'LOGIN_SUCCESS', 
+          payload: { user: authData.user, token: authData.token } 
+        });
+        return authData.user;
+      } else {
+        dispatch({ type: 'LOGOUT' });
+        return null;
+      }
+    } catch (error) {
+      console.error('useAuth.refreshUserData failed:', error);
+      return null;
+    }
+  }, []);
+
   const isLocalAuthAvailable = state.config?.showLocalAuth ?? true;
   const isSSORAvailable = state.config?.showSSOAuth ?? false;
   const isLocalRegistrationAvailable = state.config?.isLocalRegistrationAllowed ?? true;
@@ -257,5 +283,6 @@ export function useAuth() {
     logout,
     clearError,
     initialize,
+    refreshUserData,
   };
 } 

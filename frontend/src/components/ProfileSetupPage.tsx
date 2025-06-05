@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Loader2 } from 'lucide-react';
 
 export function ProfileSetupPage() {
-  const { user, initialize } = useAuth();
+  const { user, refreshUserData } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
   
@@ -35,15 +35,22 @@ export function ProfileSetupPage() {
     setError(null);
 
     try {
+
       await apiClient.updateProfile({
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         avatarUrl: avatarUrl,
       });
 
-      await initialize();
       
-      navigate('/', { replace: true });
+      const refreshedUser = await refreshUserData();
+      
+      if (refreshedUser) {
+        navigate('/', { replace: true });
+      } else {
+        console.error('ProfileSetup: failed to refresh user data');
+        setError('Failed to refresh user data');
+      }
     } catch (error: any) {
       console.error('Profile setup failed:', error);
       setError(t('errors.serverError'));

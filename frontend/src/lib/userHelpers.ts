@@ -14,6 +14,7 @@ export function needsProfileSetup(user: User | null): boolean {
   // Или если у него есть флаг firstLogin
   const hasFirstLoginFlag = isFirstLogin(user);
   
+   
   return missingName || hasFirstLoginFlag;
 }
 

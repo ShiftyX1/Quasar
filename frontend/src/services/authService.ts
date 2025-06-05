@@ -127,6 +127,27 @@ export class AuthService {
     }
   }
 
+  async refreshUserData(): Promise<{ user: User; token: string } | null> {
+    try {
+      const user = await apiClient.getCurrentUser();
+      
+      if (user) {
+        this.saveUserData(user);
+        return {
+          user,
+          token: 'cookie-based'
+        };
+      }
+      
+      this.clearUserData();
+      return null;
+    } catch (error) {
+      console.error('refreshUserData failed:', error);
+      this.clearUserData();
+      return null;
+    }
+  }
+
   getStoredUser(): User | null {
     try {
       const userData = localStorage.getItem('user_data');
