@@ -1,0 +1,91 @@
+{
+  "common": {
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "success": "Успешно",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "close": "Закрыть",
+    "back": "Назад",
+    "next": "Далее",
+    "submit": "Отправить",
+    "retry": "Повторить"
+  },
+  "app": {
+    "name": "Quasar Chat",
+    "loading": "Загрузка Quasar Chat...",
+    "copyright": "© 2024 Quasar Chat. Все права защищены."
+  },
+  "auth": {
+    "signIn": "Войти",
+    "signUp": "Регистрация",
+    "signOut": "Выйти",
+    "signInDescription": "Введите свои данные для доступа к аккаунту",
+    "signUpDescription": "Создайте новый аккаунт для начала работы",
+    "email": "Email",
+    "emailPlaceholder": "Введите ваш email",
+    "password": "Пароль",
+    "passwordPlaceholder": "Введите ваш пароль",
+    "confirmPassword": "Подтвердите пароль",
+    "confirmPasswordPlaceholder": "Подтвердите ваш пароль",
+    "username": "Имя пользователя",
+    "usernamePlaceholder": "Введите имя пользователя",
+    "signingIn": "Вход в систему...",
+    "signingUp": "Создание аккаунта...",
+    "continueWithSSO": "Войти через SSO",
+    "orContinueWith": "Или продолжить с",
+    "noAccount": "Нет аккаунта?",
+    "hasAccount": "Уже есть аккаунт?",
+    "noAuthMethods": "В настоящее время нет доступных методов аутентификации. Обратитесь в службу поддержки.",
+    "ssoCallbackError": "Ошибка аутентификации. Попробуйте еще раз.",
+    "loginSuccess": "Успешный вход в систему!",
+    "registerSuccess": "Аккаунт успешно создан!",
+    "logoutSuccess": "Успешный выход из системы!",
+    "passwordRequirements": "Пароль должен содержать хотя бы одну строчную букву, одну заглавную букву и одну цифру."
+  },
+  "navigation": {
+    "home": "Главная",
+    "rooms": "Чат-комнаты",
+    "settings": "Настройки",
+    "profile": "Профиль"
+  },
+  "pages": {
+    "home": {
+      "title": "Добро пожаловать в Quasar Chat",
+      "description": "Общайтесь с друзьями и коллегами в режиме реального времени",
+      "getStarted": "Начать"
+    },
+    "rooms": {
+      "title": "Чат-комнаты",
+      "description": "Скоро...",
+      "createRoom": "Создать комнату",
+      "joinRoom": "Присоединиться к комнате"
+    },
+    "settings": {
+      "title": "Настройки",
+      "description": "Скоро...",
+      "general": "Общие",
+      "appearance": "Внешний вид",
+      "notifications": "Уведомления",
+      "language": "Язык"
+    }
+  },
+  "errors": {
+    "networkError": "Ошибка сети. Проверьте ваше соединение.",
+    "serverError": "Ошибка сервера. Попробуйте позже.",
+    "unauthorized": "У вас нет прав для выполнения этого действия.",
+    "notFound": "Запрашиваемый ресурс не найден.",
+    "validationError": "Проверьте введенные данные и попробуйте снова.",
+    "unknownError": "Произошла неизвестная ошибка. Попробуйте снова."
+  },
+  "validation": {
+    "required": "Это поле обязательно",
+    "emailInvalid": "Введите действительный email адрес",
+    "passwordTooShort": "Пароль должен содержать не менее 6 символов",
+    "passwordsMustMatch": "Пароли должны совпадать",
+    "usernameRequired": "Имя пользователя обязательно",
+    "usernameTooShort": "Имя пользователя должно содержать не менее 3 символов"
+  }
+} 

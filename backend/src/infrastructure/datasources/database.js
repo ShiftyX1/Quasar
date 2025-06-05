@@ -1,4 +1,4 @@
-const { Sequelize } = require("sequelize");
+const { Sequelize, Error } = require("sequelize");
 const config = require("./config/database.js");
 
 // Используем настройки из конфигурации sequelize-cli для текущего окружения
@@ -28,6 +28,7 @@ const setupDatabase = async () => {
     }
   } catch (error) {
     console.error("Unable to connect to the database:", error);
+    process.exit(1);
   }
 };
 

@@ -1,121 +1,182 @@
 import { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { z } from 'zod';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Input, Button, Form, Typography, Alert } from 'antd';
-import { useAuth } from '@/hooks/useAuth';
-import Link from 'next/link';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Alert, AlertDescription } from '../ui/alert';
+import { createLoginSchema, type LoginFormData } from '../../lib/validations';
+import { useAuth } from '../../hooks/useAuth';
+import { useTranslation } from '../../hooks/useTranslation';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 
-const { Title, Text } = Typography;
+interface LoginFormProps {
+  onSwitchToRegister?: () => void;
+}
 
-const loginSchema = z.object({
-  email: z.string().email('Некорректный email'),
-  password: z.string().min(6, 'Пароль должен содержать минимум 6 символов'),
-});
+export function LoginForm({ onSwitchToRegister }: LoginFormProps) {
+  const { login, loginWithSSO, isLocalAuthAvailable, isSSORAvailable, isLoading, error, clearError } = useAuth();
+  const { t } = useTranslation();
+  const [showPassword, setShowPassword] = useState(false);
 
-type LoginFormValues = z.infer<typeof loginSchema>;
-
-const LoginForm = () => {
-  const { login, error, loading } = useAuth();
-  const [formError, setFormError] = useState<string | null>(null);
+  const loginSchema = createLoginSchema(t);
 
   const {
-    control,
+    register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormValues>({
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
+      username: '',
       password: '',
-    }
+    },
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
-    setFormError(null);
-    try {
-      await login(data);
-    } catch (err) {
-      setFormError('Ошибка при входе');
+  const onSubmit = async (data: LoginFormData) => {
+    clearError();
+    const result = await login(data);
+    
+    if (!result.success) {
+      console.error('Login failed:', result.error);
+    } else {
+      reset();
     }
   };
 
+  const handleSSORLogin = async () => {
+    clearError();
+    await loginWithSSO();
+  };
+
   return (
-    <div className="max-w-md w-full mx-auto p-6 bg-white rounded-lg shadow-md">
-      <Title level={2} className="text-center mb-6">
-        Вход в аккаунт
-      </Title>
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-2xl font-bold text-center">{t('auth.signIn')}</CardTitle>
+        <CardDescription className="text-center">
+          {t('auth.signInDescription')}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
-      {(error || formError) && (
-        <Alert
-          message={error || formError}
-          type="error"
-          showIcon
-          className="mb-4"
-        />
-      )}
+        {isSSORAvailable && (
+          <div className="space-y-4">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={handleSSORLogin}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
+              {t('auth.continueWithSSO')}
+            </Button>
+            
+            {isLocalAuthAvailable && (
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    {t('auth.orContinueWith')}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
-      <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
-        <Form.Item
-          label="Email"
-          validateStatus={errors.email ? 'error' : ''}
-          help={errors.email?.message}
-        >
-          <Controller
-            name="email"
-            control={control}
-            render={({ field }) => (
+        {isLocalAuthAvailable ? (
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="username" className="text-sm font-medium">
+                {t('auth.email')}
+              </label>
               <Input
+                id="username"
                 type="email"
-                placeholder="Email"
-                size="large"
-                {...field}
+                placeholder={t('auth.emailPlaceholder')}
+                error={errors.username?.message}
+                {...register('username')}
               />
-            )}
-          />
-        </Form.Item>
+            </div>
 
-        <Form.Item
-          label="Пароль"
-          validateStatus={errors.password ? 'error' : ''}
-          help={errors.password?.message}
-        >
-          <Controller
-            name="password"
-            control={control}
-            render={({ field }) => (
-              <Input.Password
-                placeholder="Пароль"
-                size="large"
-                {...field}
-              />
-            )}
-          />
-        </Form.Item>
+            <div className="space-y-2">
+              <label htmlFor="password" className="text-sm font-medium">
+                {t('auth.password')}
+              </label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder={t('auth.passwordPlaceholder')}
+                  error={errors.password?.message}
+                  {...register('password')}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </Button>
+              </div>
+            </div>
 
-        <Form.Item>
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={loading}
-            className="w-full"
-            size="large"
-          >
-            Войти
-          </Button>
-        </Form.Item>
-      </Form>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isSubmitting || isLoading}
+            >
+              {isSubmitting || isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {t('auth.signingIn')}
+                </>
+              ) : (
+                t('auth.signIn')
+              )}
+            </Button>
+          </form>
+        ) : (
+          !isSSORAvailable && (
+            <Alert variant="destructive">
+              <AlertDescription>
+                {t('auth.noAuthMethods')}
+              </AlertDescription>
+            </Alert>
+          )
+        )}
 
-      <div className="text-center mt-4">
-        <Text>
-          Нет аккаунта?{' '}
-          <Link href="/auth/register" className="text-blue-500 hover:underline">
-            Зарегистрироваться
-          </Link>
-        </Text>
-      </div>
-    </div>
+        {isLocalAuthAvailable && onSwitchToRegister && (
+          <div className="text-center text-sm">
+            <span className="text-muted-foreground">{t('auth.noAccount')} </span>
+            <Button
+              type="button"
+              variant="link"
+              className="p-0 h-auto font-normal"
+              onClick={onSwitchToRegister}
+            >
+              {t('auth.signUp')}
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
-};
-
-export default LoginForm; 
+} 

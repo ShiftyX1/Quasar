@@ -56,17 +56,13 @@ class RoomMemberController {
       const userId = req.user?.id;
       
       if (!userId) {
-        console.error('getJoinedRooms: User not authenticated or missing user data:', req.user);
         return res.status(401).json({ error: "User not authenticated" });
       }
-
-      console.log(`getJoinedRooms: User ${userId} (${req.user.username}) requesting joined rooms`);
       
-      const memberships = await this.roomMemberRepository.findByUserId(userId);
+      const joinedRooms = await this.roomMemberRepository.findJoinedRoomsByUserId(userId);
 
-      res.status(200).json(memberships);
+      res.status(200).json(joinedRooms);
     } catch (error) {
-      console.error('getJoinedRooms error:', error);
       next(error);
     }
   }

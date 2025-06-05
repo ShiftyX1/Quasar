@@ -46,6 +46,25 @@ class IKeycloakService {
   async validateToken(token) {
     throw new Error('Method must be implemented');
   }
+
+  /**
+   * Генерирует URL для logout в Keycloak
+   * @param {string} redirectUri - URL для редиректа после logout
+   * @returns {string} Logout URL
+   */
+  generateLogoutUrl(redirectUri) {
+    throw new Error('Method must be implemented');
+  }
+
+  /**
+   * Отзывает токен в Keycloak
+   * @param {string} token - Access или Refresh token
+   * @param {string} tokenType - 'access_token' или 'refresh_token'
+   * @returns {Promise<boolean>}
+   */
+  async revokeToken(token, tokenType = 'access_token') {
+    throw new Error('Method must be implemented');
+  }
 }
 
 module.exports = IKeycloakService; 

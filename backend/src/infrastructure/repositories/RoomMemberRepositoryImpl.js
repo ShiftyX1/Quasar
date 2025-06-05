@@ -77,6 +77,30 @@ class RoomMemberRepositoryImpl extends RoomMemberRepository {
     });
   }
 
+  async findJoinedRoomsByUserId(userId) {
+    const roomMemberModels = await RoomMemberModel.findAll({
+      where: { userId },
+      include: [
+        {
+          model: ChatRoomModel,
+          as: "room",
+          attributes: ["id", "name", "accessCode", "ownerId", "createdAt", "updatedAt"]
+        }
+      ]
+    });
+    
+    return roomMemberModels
+      .filter(model => model.room)
+      .map(model => ({
+        id: model.room.id,
+        name: model.room.name,
+        accessCode: model.room.accessCode,
+        ownerId: model.room.ownerId,
+        createdAt: model.room.createdAt,
+        updatedAt: model.room.updatedAt
+      }));
+  }
+
   async delete(id) {
     const deleted = await RoomMemberModel.destroy({ where: { id } });
     return !!deleted;

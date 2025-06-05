@@ -1,9 +1,10 @@
 const settings = require("../../../config/settings");
 
 class UserController {
-  constructor(registerUserUseCase, loginUserUseCase) {
+  constructor(registerUserUseCase, loginUserUseCase, logoutUserUseCase = null) {
     this.registerUserUseCase = registerUserUseCase;
     this.loginUserUseCase = loginUserUseCase;
+    this.logoutUserUseCase = logoutUserUseCase;
   }
 
   async register(req, res, next) {
@@ -48,11 +49,30 @@ class UserController {
   }
 
   async logout(req, res) {
-    res.clearCookie('auth_token', { 
-      path: '/',
-      ...settings.cookie 
-    });
-    res.status(200).json({ message: "Successfully logged out" });
+    try {
+      // Очищаем локальную куку
+      res.clearCookie('auth_token', { 
+        path: '/',
+        ...settings.cookie 
+      });
+
+      // Используем новый LogoutUserUseCase
+      if (this.logoutUserUseCase) {
+        const result = await this.logoutUserUseCase.execute(req.token, req.user);
+        
+        if (result.keycloakLogoutUrl) {
+          return res.status(200).json({ 
+            message: "Successfully logged out",
+            keycloakLogoutUrl: result.keycloakLogoutUrl
+          });
+        }
+      }
+
+      res.status(200).json({ message: "Successfully logged out" });
+    } catch (error) {
+      console.error('Logout error:', error);
+      res.status(500).json({ error: "Logout failed" });
+    }
   }
 
   async getCurrentUser(req, res) {

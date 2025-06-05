@@ -143,6 +143,53 @@ class KeycloakService extends IKeycloakService {
       return false;
     }
   }
+
+  /**
+   * Генерирует URL для logout в Keycloak
+   * @param {string} redirectUri - URL для редиректа после logout
+   * @returns {string} Logout URL
+   */
+  generateLogoutUrl(redirectUri) {
+    const params = new URLSearchParams({
+      client_id: this.config.clientId,
+      post_logout_redirect_uri: redirectUri || this.config.redirectUri
+    });
+
+    return `${this.baseUrl}/protocol/openid-connect/logout?${params.toString()}`;
+  }
+
+  /**
+   * Отзывает токен в Keycloak
+   * @param {string} token - Access или Refresh token
+   * @param {string} tokenType - 'access_token' или 'refresh_token'
+   * @returns {Promise<boolean>}
+   */
+  async revokeToken(token, tokenType = 'access_token') {
+    try {
+      const params = new URLSearchParams({
+        token: token,
+        token_type_hint: tokenType,
+        client_id: this.config.clientId,
+        client_secret: this.config.clientSecret
+      });
+
+      const response = await this.httpClient.post(
+        `${this.baseUrl}/protocol/openid-connect/revoke`,
+        params,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }
+      );
+
+      // Keycloak возвращает 200 даже если токен уже недействителен
+      return response.status === 200;
+    } catch (error) {
+      console.error('Token revocation error:', error.message);
+      return false;
+    }
+  }
 }
 
 module.exports = KeycloakService; 
