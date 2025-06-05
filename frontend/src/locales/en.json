@@ -70,6 +70,18 @@
       "appearance": "Appearance",
       "notifications": "Notifications",
       "language": "Language"
+    },
+    "profileSetup": {
+      "title": "Setup Your Profile",
+      "description": "Please provide your name and choose an avatar color to complete your profile setup.",
+      "avatarBackground": "Avatar Background Color",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "completeSetup": "Complete Setup",
+      "placeholders": {
+        "firstName": "Enter your first name",
+        "lastName": "Enter your last name"
+      }
     }
   },
   "errors": {

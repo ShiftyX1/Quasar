@@ -1,6 +1,7 @@
 import { useReducer, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { authService } from '../services/authService';
+import { needsProfileSetup } from '../lib/userHelpers';
 import type { AuthState, AuthAction, LoginCredentials, RegisterCredentials } from '../types/auth';
 
 const initialState: AuthState = {
@@ -82,6 +83,10 @@ export function useAuth() {
           type: 'LOGIN_SUCCESS', 
           payload: { user: authData.user, token: authData.token } 
         });
+        
+        if (needsProfileSetup(authData.user) && location.pathname !== '/profile-setup') {
+          navigate('/profile-setup', { replace: true });
+        }
       } else {
         dispatch({ type: 'SET_LOADING', payload: false });
       }
@@ -89,7 +94,7 @@ export function useAuth() {
       console.error('Auth initialization failed:', error);
       dispatch({ type: 'SET_LOADING', payload: false });
     }
-  }, []);
+  }, [navigate, location.pathname]);
 
   const login = useCallback(async (credentials: LoginCredentials) => {
     try {
@@ -104,8 +109,12 @@ export function useAuth() {
           payload: { user: response.data.user, token: response.data.token } 
         });
         
-        const from = location.state?.from?.pathname || '/';
-        navigate(from, { replace: true });
+        if (needsProfileSetup(response.data.user)) {
+          navigate('/profile-setup', { replace: true });
+        } else {
+          const from = location.state?.from?.pathname || '/';
+          navigate(from, { replace: true });
+        }
         
         return { success: true };
       } else {
@@ -133,7 +142,7 @@ export function useAuth() {
           payload: { user: response.data.user, token: response.data.token } 
         });
         
-        navigate('/', { replace: true });
+        navigate('/profile-setup', { replace: true });
         
         return { success: true };
       } else {
@@ -180,7 +189,11 @@ export function useAuth() {
           payload: { user: response.data.user, token: response.data.token } 
         });
         
-        navigate('/', { replace: true });
+        if (needsProfileSetup(response.data.user)) {
+          navigate('/profile-setup', { replace: true });
+        } else {
+          navigate('/', { replace: true });
+        }
         
         return { success: true };
       } else {

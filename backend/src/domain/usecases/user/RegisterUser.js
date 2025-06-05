@@ -31,15 +31,22 @@ class RegisterUser {
 
     const passwordHash = await this.passwordHasher.hash(password);
     const now = new Date();
+
+    const metadata = {
+      firstLogin: true,
+    }
     
     const user = new User(
       null,
       username,
+      null, // firstName
+      null, // lastName
       email,
+      null, // avatarUrl
       passwordHash,
       'local', // authProvider
       null, // externalId
-      null, // metadata
+      metadata, // metadata
       now,
       now
     );

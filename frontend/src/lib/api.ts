@@ -1,6 +1,6 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosResponse } from 'axios';
-import type { AuthConfig, AuthResponse, LoginCredentials, RegisterCredentials } from '../types/auth';
+import type { AuthConfig, AuthResponse, LoginCredentials, RegisterCredentials, ProfileSetupData } from '../types/auth';
 
 export class ApiClient {
   private client: AxiosInstance;
@@ -68,7 +68,8 @@ export class ApiClient {
     
     return { authUrl: ssoUrl };
   }
-
+  // HINT: за строчку ниже я попаду в программерский ад :)
+  // @ts-ignore
   async handleSSOCallback(code: string, state: string): Promise<AuthResponse> {
     try {
       const user = await this.getCurrentUser();
@@ -135,6 +136,11 @@ export class ApiClient {
 
   async getCurrentUser(): Promise<any> {
     const response: AxiosResponse<any> = await this.client.get('/users/me');
+    return response.data;
+  }
+
+  async updateProfile(profileData: ProfileSetupData): Promise<any> {
+    const response: AxiosResponse<any> = await this.client.put('/users/profile', profileData);
     return response.data;
   }
 

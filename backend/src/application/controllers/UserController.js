@@ -1,10 +1,12 @@
 const settings = require("../../../config/settings");
 
 class UserController {
-  constructor(registerUserUseCase, loginUserUseCase, logoutUserUseCase = null) {
+  constructor(registerUserUseCase, loginUserUseCase, logoutUserUseCase = null, getCurrentUserUseCase = null, updateUserProfileUseCase = null) {
     this.registerUserUseCase = registerUserUseCase;
     this.loginUserUseCase = loginUserUseCase;
     this.logoutUserUseCase = logoutUserUseCase;
+    this.getCurrentUserUseCase = getCurrentUserUseCase;
+    this.updateUserProfileUseCase = updateUserProfileUseCase;
   }
 
   async register(req, res, next) {
@@ -50,13 +52,11 @@ class UserController {
 
   async logout(req, res) {
     try {
-      // Очищаем локальную куку
       res.clearCookie('auth_token', { 
         path: '/',
         ...settings.cookie 
       });
 
-      // Используем новый LogoutUserUseCase
       if (this.logoutUserUseCase) {
         const result = await this.logoutUserUseCase.execute(req.token, req.user);
         
@@ -76,7 +76,42 @@ class UserController {
   }
 
   async getCurrentUser(req, res) {
-    res.status(200).json(req.user);
+    try {
+      if (this.getCurrentUserUseCase) {
+        const user = await this.getCurrentUserUseCase.execute(req.user.id);
+        return res.status(200).json(user);
+      }
+      
+      res.status(200).json(req.user);
+    } catch (error) {
+      console.error('Get current user error:', error);
+      res.status(500).json({ error: "Failed to get user information" });
+    }
+  }
+
+  async updateProfile(req, res) {
+    try {
+      if (!this.updateUserProfileUseCase) {
+        return res.status(500).json({ error: "Profile update service not available" });
+      }
+
+      const { firstName, lastName, avatarUrl } = req.body;
+
+      if (!firstName || !lastName) {
+        return res.status(400).json({ error: "First name and last name are required" });
+      }
+
+      const updatedUser = await this.updateUserProfileUseCase.execute(req.user.id, {
+        firstName,
+        lastName,
+        avatarUrl
+      });
+
+      res.status(200).json(updatedUser);
+    } catch (error) {
+      console.error('Update profile error:', error);
+      res.status(500).json({ error: "Failed to update profile" });
+    }
   }
 }
 

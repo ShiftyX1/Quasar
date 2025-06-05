@@ -6,7 +6,10 @@ class UserRepositoryImpl extends UserRepository {
   async create(user) {
     const userModel = await UserModel.create({
       username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
+      avatarUrl: user.avatarUrl,
       passwordHash: user.passwordHash,
       authProvider: user.authProvider || 'local',
       externalId: user.externalId,
@@ -59,7 +62,10 @@ class UserRepositoryImpl extends UserRepository {
   async update(user) {
     const [updated] = await UserModel.update({
       username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
+      avatarUrl: user.avatarUrl,
       passwordHash: user.passwordHash,
       authProvider: user.authProvider,
       externalId: user.externalId,
@@ -83,7 +89,10 @@ class UserRepositoryImpl extends UserRepository {
     return new User(
       userModel.id,
       userModel.username,
+      userModel.firstName,
+      userModel.lastName,
       userModel.email,
+      userModel.avatarUrl,
       userModel.passwordHash,
       userModel.authProvider,
       userModel.externalId,

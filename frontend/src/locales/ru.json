@@ -70,6 +70,18 @@
       "appearance": "Внешний вид",
       "notifications": "Уведомления",
       "language": "Язык"
+    },
+    "profileSetup": {
+      "title": "Настройте ваш профиль",
+      "description": "Пожалуйста, укажите имя и фамилию и выберите цвет аватара для завершения первоначальной настройки профиля.",
+      "avatarBackground": "Цвет фона аватара",
+      "firstName": "Имя",
+      "lastName": "Фамилия",
+      "completeSetup": "Завершить настройку",
+      "placeholders": {
+        "firstName": "Введите ваше имя",
+        "lastName": "Введите вашу фамилию"
+      }
     }
   },
   "errors": {

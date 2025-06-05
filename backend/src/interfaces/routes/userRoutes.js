@@ -8,6 +8,8 @@ const RegisterUser = require("../../domain/usecases/user/RegisterUser");
 const LoginUser = require("../../domain/usecases/user/LoginUser");
 const LogoutUserUseCase = require("../../domain/usecases/user/LogoutUserUseCase");
 const LogoutWithKeycloakUseCase = require("../../domain/usecases/user/LogoutWithKeycloakUseCase");
+const GetCurrentUserUseCase = require("../../domain/usecases/user/GetCurrentUserUseCase");
+const UpdateUserProfileUseCase = require("../../domain/usecases/user/UpdateUserProfileUseCase");
 
 const UserRepositoryImpl = require("../../infrastructure/repositories/UserRepositoryImpl");
 const BcryptPasswordHasher = require("../../infrastructure/security/BcryptPasswordHasher");
@@ -22,6 +24,8 @@ const tokenBlacklistService = new TokenBlacklistService(settings.redis);
 
 const registerUserUseCase = new RegisterUser(userRepository, passwordHasher, settings);
 const loginUserUseCase = new LoginUser(userRepository, passwordHasher, tokenGenerator);
+const getCurrentUserUseCase = new GetCurrentUserUseCase(userRepository);
+const updateUserProfileUseCase = new UpdateUserProfileUseCase(userRepository);
 
 let logoutWithKeycloakUseCase = null;
 if (settings.isKeycloakEnabled) {
@@ -34,12 +38,15 @@ const logoutUserUseCase = new LogoutUserUseCase(tokenBlacklistService, logoutWit
 const userController = new UserController(
   registerUserUseCase, 
   loginUserUseCase,
-  logoutUserUseCase
+  logoutUserUseCase,
+  getCurrentUserUseCase,
+  updateUserProfileUseCase
 );
 
 router.post("/register", (req, res, next) => userController.register(req, res, next));
 router.post("/login", (req, res, next) => userController.login(req, res, next));
 router.post("/logout", authMiddleware, (req, res) => userController.logout(req, res));
 router.get("/me", authMiddleware, (req, res) => userController.getCurrentUser(req, res));
+router.put("/profile", authMiddleware, (req, res) => userController.updateProfile(req, res));
 
 module.exports = router; 

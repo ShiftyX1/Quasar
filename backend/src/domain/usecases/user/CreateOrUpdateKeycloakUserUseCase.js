@@ -9,7 +9,6 @@ class CreateOrUpdateKeycloakUserUseCase {
   }
 
   async execute(keycloakUserData) {
-    // 1. Валидация входных данных
     if (!keycloakUserData.sub) {
       throw new Error('Missing Keycloak user ID (sub)');
     }
@@ -21,14 +20,11 @@ class CreateOrUpdateKeycloakUserUseCase {
     }
 
     try {
-      // 2. Поиск существующего пользователя по external_id (Keycloak sub)
       let existingUser = await this.userRepository.findByExternalId(keycloakUserData.sub);
 
       if (existingUser) {
-        // 3. Обновление существующего пользователя
         return await this._updateExistingUser(existingUser, keycloakUserData);
       } else {
-        // 4. Создание нового пользователя
         return await this._createNewUser(keycloakUserData);
       }
     } catch (error) {
@@ -38,10 +34,11 @@ class CreateOrUpdateKeycloakUserUseCase {
   }
 
   async _updateExistingUser(existingUser, keycloakUserData) {
-    // Обновляем только если данные изменились
     const needsUpdate = 
       existingUser.username !== keycloakUserData.preferred_username ||
       existingUser.email !== keycloakUserData.email ||
+      existingUser.firstName !== keycloakUserData.given_name ||
+      existingUser.lastName !== keycloakUserData.family_name ||
       JSON.stringify(existingUser.metadata) !== JSON.stringify(this._extractMetadata(keycloakUserData));
 
     if (!needsUpdate) {
@@ -49,7 +46,6 @@ class CreateOrUpdateKeycloakUserUseCase {
       return existingUser;
     }
 
-    // Проверка на коллизию email с другими пользователями
     const emailCollision = await this.userRepository.findByEmailAndProvider(
       keycloakUserData.email, 
       'local'
@@ -62,8 +58,11 @@ class CreateOrUpdateKeycloakUserUseCase {
     const updatedUser = new User(
       existingUser.id,
       keycloakUserData.preferred_username,
+      keycloakUserData.given_name || null,
+      keycloakUserData.family_name || null,
       keycloakUserData.email,
-      null, // passwordHash остается null для SSO пользователей
+      existingUser.avatarUrl,
+      null,
       'keycloak',
       keycloakUserData.sub,
       this._extractMetadata(keycloakUserData),
@@ -81,7 +80,6 @@ class CreateOrUpdateKeycloakUserUseCase {
   }
 
   async _createNewUser(keycloakUserData) {
-    // Проверка на коллизию email с локальными пользователями
     const emailCollision = await this.userRepository.findByEmailAndProvider(
       keycloakUserData.email, 
       'local'
@@ -91,19 +89,23 @@ class CreateOrUpdateKeycloakUserUseCase {
       throw new Error('EMAIL_COLLISION');
     }
 
-    // Проверка уникальности username
     let username = keycloakUserData.preferred_username;
     const existingUsername = await this.userRepository.findByUsername(username);
     
     if (existingUsername) {
-      // Генерируем уникальное имя пользователя
       username = `${keycloakUserData.preferred_username}_${Date.now()}`;
     }
+
+    const metadata = this._extractMetadata(keycloakUserData);
+    metadata.firstLogin = true;
 
     const newUser = new User(
       null, // id будет назначен базой данных
       username,
+      keycloakUserData.given_name || null,
+      keycloakUserData.family_name || null,
       keycloakUserData.email,
+      null, // avatarUrl - новый пользователь пока без аватара
       null, // passwordHash = null для SSO пользователей
       'keycloak',
       keycloakUserData.sub,

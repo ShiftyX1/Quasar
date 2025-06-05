@@ -1,13 +1,21 @@
-// Auth types
 export interface User {
   id: string;
   username: string;
+  firstName?: string;
+  lastName?: string;
   email: string;
+  avatarUrl?: string;
   authProvider: 'local' | 'keycloak';
   externalId?: string;
   metadata?: Record<string, any>;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ProfileSetupData {
+  firstName: string;
+  lastName: string;
+  avatarUrl?: string;
 }
 
 export interface AuthConfig {

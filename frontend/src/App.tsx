@@ -5,6 +5,7 @@ import { AuthPage } from './components/auth/AuthPage';
 import { HomePage } from './components/HomePage';
 import { Layout } from './components/Layout';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { ProfileSetupPage } from './components/ProfileSetupPage';
 import { ThemeProvider } from './components/theme-provider';
 import { Loader2 } from 'lucide-react';
 
@@ -28,6 +29,15 @@ function App() {
               path="/auth" 
               element={
                 isAuthenticated ? <Navigate to="/" replace /> : <AuthPage />
+              } 
+            />
+            
+            <Route 
+              path="/profile-setup" 
+              element={
+                <ProtectedRoute>
+                  <ProfileSetupPage />
+                </ProtectedRoute>
               } 
             />
             
